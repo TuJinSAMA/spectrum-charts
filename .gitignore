@@ -1,0 +1,4 @@
+/dist
+/build
+/node_modules
+.Ds_Store

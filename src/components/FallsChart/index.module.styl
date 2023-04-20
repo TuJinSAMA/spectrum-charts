@@ -1,0 +1,23 @@
+.heatmap {
+  min-width: 200px;
+  background-color: rgba(#000, 0);
+  position: relative;
+  overflow: hidden;
+
+  span {
+    position: absolute;
+    left: -14px;
+    top: 50%;
+    font-size: 12px;
+    transform: translateY(-100%) rotate(-90deg);
+  }
+
+  ::v-deep .main_canvas {
+    position: relative;
+  }
+  ::v-deep .select_canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+}
