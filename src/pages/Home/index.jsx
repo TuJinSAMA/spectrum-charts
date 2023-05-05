@@ -11,6 +11,8 @@ const Home = () => {
   const [progressBarList, setProgressBarList] = useState(() => [])
 
   const spectrumChartRef = useRef(null)
+  const fallsChartRef = useRef(null)
+  const progressBarRef = useRef(null)
 
   const init = () => {
     useEffect(() => {
@@ -23,8 +25,17 @@ const Home = () => {
         .then(response => response.json())
         .then(json => {
           setProgressBarList(json)
+          const data = json.map((item) => Object.values(item));
+          progressBarRef.current && progressBarRef.current.drawProgress(data)
         })
     }, [])
+  }
+
+  const handlerPlay = () => {
+    console.log(chartList)
+    console.log(progressBarList)
+    console.log(spectrumChartRef.current);
+    console.log(fallsChartRef.current);
   }
 
   init()
@@ -38,7 +49,12 @@ const Home = () => {
     <div className={style.container}>
       <div className={style.main}>
         <div className={style.play_group}>
-          <Button ghost size="small" icon={<PlayCircleOutlined />}>
+          <Button
+            ghost
+            size="small"
+            onClick={handlerPlay}
+            icon={<PlayCircleOutlined />}
+          >
             开始播放
           </Button>
           <Button ghost size="small" icon={<PauseCircleOutlined />}>
@@ -46,15 +62,22 @@ const Home = () => {
           </Button>
         </div>
         <div className={style.charts_box}>
-          <ProgressBar />
+          <ProgressBar ref={progressBarRef} />
           <SpectrumChart
             yAxisMax={0}
             yAxisMin={-140}
             yTitle="电平(dBm)"
             selection={true}
             height={250}
+            ref={spectrumChartRef}
           />
-          <FallsChart title="瀑布图(dBm)" maxDb={0} minDb={-140} height={250} />
+          <FallsChart
+            title="瀑布图(dBm)"
+            maxDb={0}
+            minDb={-140}
+            height={250}
+            ref={fallsChartRef}
+          />
         </div>
       </div>
     </div>

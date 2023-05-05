@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useImperativeHandle } from 'react'
 import { round } from 'lodash'
 import style from './index.module.styl'
 const ColorMap = require('colormap')
 
-const FallsChart = ({
+const FallsChart = React.forwardRef(({
   title = '瀑布图(dBuv)',
   height = 50,
   minDb = -125,
@@ -12,7 +12,7 @@ const FallsChart = ({
   padding = 2,
   colormapName = 'jet',
   selection = true,
-}) => {
+}, ref) => {
   const heatmap = useRef(null)
   let canvas = null // 实际用于渲染瀑布图的 canvas DOM
   let canvasCtx = null // 实际用于渲染瀑布图的 canvas context
@@ -235,11 +235,16 @@ const FallsChart = ({
     initComponent()
   }, [])
 
+
+  useImperativeHandle(ref, () => ({
+    addData: addData
+  }))
+
   return (
     <div className={style.heatmap} style={{ height }} ref={heatmap}>
       <span>{title}</span>
     </div>
   )
-}
+})
 
 export default FallsChart
