@@ -27,18 +27,21 @@ const SpectrumChart = React.forwardRef(
     ref
   ) => {
     const spectrumRef = useRef(null)
-    let data = [] // 当前缓存的数据
-    let chart = null // 保存 chart 实例
-    let chartInterval = null // 保存渲染 chart 定时器
-    let xAxisMin = 0
-    let xAxisMax = 0
-    let isFirstRender = true
-    let createdBegin = false
-    let maximum = []
-    let minimum = []
-    let initMax = false
-    let initMin = false
-    let keySymbol = Symbol()
+    const [state, setState] = useState({
+      xAxisMin: 0,
+      xAxisMax: 0,
+      isFirstRender: true,
+    })
+    const [keySymbol, setKeySymbol] = useState(null)
+
+    useEffect(() => {
+      console.log('init', keySymbol)
+      setKeySymbol(Symbol())
+    }, [])
+
+    useEffect(() => {
+      keySymbol && createChart()
+    }, [keySymbol])
 
     // 获取 highcharts 组件的实例
     const getChartInstance = () => {
@@ -103,7 +106,7 @@ const SpectrumChart = React.forwardRef(
           // 网格线最下方线的颜色
           lineColor: '#4F4F4F',
           visible: xAxisVisible,
-          minRange: (xAxisMax - xAxisMin) * 0.01,
+          minRange: (state.xAxisMax - state.xAxisMin) * 0.01,
           labels: {
             reserveSpace: false,
             autoRotation: false,
@@ -166,7 +169,7 @@ const SpectrumChart = React.forwardRef(
       setChartInstance(spectrumChart)
     }
     // 使用定时器 渲染每一帧图像
-    const addData = res => {
+    const updateChart = res => {
       let totalData = res.data
       // 根据起始值与结束值计算每一个点的坐标
       if (!res.data) return
@@ -182,41 +185,38 @@ const SpectrumChart = React.forwardRef(
         }
         return [x, y]
       })
-      const spectrumChart = this.getChartInstance()
-      if (this.isFirstRender) {
+      const spectrumChart = getChartInstance()
+      if (state.isFirstRender) {
         spectrumChart.update({
           xAxis: {
             min: res.startFrequency,
             max: res.stopFrequency,
           },
         })
-        this.xAxisMin = res.startFrequency
-        this.xAxisMax = res.stopFrequency
-        this.reload()
-        this.isFirstRender = false
+        setState(s => ({
+          xAxisMin: res.startFrequency,
+          xAxisMax: res.stopFrequency,
+          isFirstRender: false,
+        }))
+        reload()
       }
-      this.data = resultData
       // 插入数据重新渲染
       if (!spectrumChart.series) return
       spectrumChart.series[0].setData(resultData, true, false)
     }
 
     useImperativeHandle(ref, () => ({
-      addData: addData,
+      updateChart: updateChart,
     }))
 
     // 重新绘制
     const reload = () => {
-      const spectrumChart = this.getChartInstance()
+      const spectrumChart = getChartInstance()
       if (spectrumChart) {
         spectrumChart.destroy()
         createChart()
       }
     }
-
-    useEffect(() => {
-      createChart()
-    }, [])
 
     return <div style={{ height: height }} ref={spectrumRef}></div>
   }

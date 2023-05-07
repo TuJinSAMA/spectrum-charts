@@ -7,35 +7,54 @@ import FallsChart from '@/components/FallsChart'
 import style from './index.module.styl'
 
 const Home = () => {
-  const [chartList, setChartList] = useState(() => [])
-  const [progressBarList, setProgressBarList] = useState(() => [])
+  const [chartData, setChartData] = useState(() => [])
+  const [percentage, setPercentage] = useState(0)
+
 
   const spectrumChartRef = useRef(null)
   const fallsChartRef = useRef(null)
   const progressBarRef = useRef(null)
+
+  const interval = useRef(null)
 
   const init = () => {
     useEffect(() => {
       fetch('data/data.json')
         .then(response => response.json())
         .then(json => {
-          setChartList(json)
+          setChartData(json)
         })
       fetch('data/progress.json')
         .then(response => response.json())
         .then(json => {
-          setProgressBarList(json)
-          const data = json.map((item) => Object.values(item));
+          const data = json.map(item => Object.values(item))
           progressBarRef.current && progressBarRef.current.drawProgress(data)
         })
     }, [])
   }
 
   const handlerPlay = () => {
-    console.log(chartList)
-    console.log(progressBarList)
-    console.log(spectrumChartRef.current);
-    console.log(fallsChartRef.current);
+    if (spectrumChartRef.current && fallsChartRef.current) {
+      createInterval(chartData)
+    }
+  }
+
+  const handlerPause = () => {
+    clearInterval(interval.current)
+  }
+
+  const createInterval = (data, time = 30) => {
+    console.log(data)
+    let i = 0
+    interval.current = setInterval(() => {
+      if (i === data.length - 1) return clearInterval(interval.current)
+      const { SampleIndex, TotalSamplesCount } = data[i]
+      const percentage = (SampleIndex / TotalSamplesCount) * 100
+      setPercentage(percentage)
+      spectrumChartRef.current.updateChart(data[i])
+      fallsChartRef.current.updateChart(data[i])
+      i++
+    }, 30)
   }
 
   init()
@@ -57,12 +76,12 @@ const Home = () => {
           >
             开始播放
           </Button>
-          <Button ghost size="small" icon={<PauseCircleOutlined />}>
+          <Button ghost size="small" onClick={handlerPause} icon={<PauseCircleOutlined />}>
             暂停播放
           </Button>
         </div>
         <div className={style.charts_box}>
-          <ProgressBar ref={progressBarRef} />
+          <ProgressBar ref={progressBarRef} percentage={percentage} />
           <SpectrumChart
             yAxisMax={0}
             yAxisMin={-140}
