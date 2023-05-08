@@ -10,11 +10,9 @@ const SpectrumChart = React.forwardRef(
       zoomType = 'x',
       yAxisVisible = true,
       xAxisVisible = true,
-      selection = true,
       color = '#15CDE4',
       backgroundColor = 'rgba(0,0,0,0)',
       height = 50,
-      pointCount = 1024,
       spacingBottom = 25,
       spacingLeft = 10,
       spacingRight = 3,
@@ -194,11 +192,12 @@ const SpectrumChart = React.forwardRef(
           },
         })
         setState(s => ({
+          ...s,
           xAxisMin: res.startFrequency,
           xAxisMax: res.stopFrequency,
           isFirstRender: false,
         }))
-        reload()
+        resetChart()
       }
       // 插入数据重新渲染
       if (!spectrumChart.series) return
@@ -210,7 +209,7 @@ const SpectrumChart = React.forwardRef(
     }))
 
     // 重新绘制
-    const reload = () => {
+    const resetChart = () => {
       const spectrumChart = getChartInstance()
       if (spectrumChart) {
         spectrumChart.destroy()

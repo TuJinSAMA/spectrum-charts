@@ -109,7 +109,7 @@ const FallsChart = React.forwardRef(
       addWaterfallRow(result.data)
       // 再将画好的图像显示在页面中
       drawFallsOnCanvas(len)
-      // 最后再绘制一边图例 (不然会被覆盖)
+      // 最后再绘制一遍图例 (不然会被覆盖)
       // drawLegend(state.canvasCtx, state.legendCanvasCtx, state.colormap)
     }
     // 绘制瀑布图,隐藏状态
@@ -200,18 +200,18 @@ const FallsChart = React.forwardRef(
       canvasCtx.fillText(maxDb, (legendWidth * 3) / 4 - 10, 12)
       canvasCtx.fillText(minDb, (legendWidth * 3) / 4 - 10, height - 6)
     }
-    const clear = () => {
-      this.fallsCanvasCtx.clearRect(
+    const resetChart = () => {
+      state.fallsCanvasCtx.clearRect(
         0,
         0,
-        this.fallsCanvas.width,
-        this.fallsCanvas.height
+        state.fallsCanvasCtx.canvas.width,
+        state.fallsCanvasCtx.canvas.height
       )
-      this.canvasCtx.clearRect(
-        this.legendWidth,
+      state.canvasCtx.clearRect(
+        legendWidth,
         0,
-        this.rangeCanvas.width,
-        this.rangeCanvas.height
+        state.fallsCanvasCtx.canvas.width,
+        state.fallsCanvasCtx.canvas.height
       )
 
     }

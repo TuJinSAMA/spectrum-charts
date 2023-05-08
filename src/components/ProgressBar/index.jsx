@@ -254,10 +254,10 @@ const ProgressBar = React.forwardRef(
       }
     }, [percentage])
 
-    const resetProgress = () => {
-      canvasCtx.value.clearRect(0, 0, boxWidth.value, boxHeight.value)
-      fallsCanvasCtx.value.clearRect(0, 0, boxWidth.value, boxHeight.value)
-      lineBox.value && lineBox.value.remove()
+    const resetProgressBar = () => {
+      state.canvasCtx.clearRect(0, 0, state.boxWidth, state.boxHeight)
+      state.fallsCanvasCtx.clearRect(0, 0, state.boxWidth, state.boxHeight)
+      lineBox && lineBox.remove()
     }
 
     useImperativeHandle(ref, () => ({
