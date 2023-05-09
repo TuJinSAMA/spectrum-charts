@@ -10,13 +10,13 @@ const Home = () => {
   const [chartData, setChartData] = useState(() => [])
   const [percentage, setPercentage] = useState(0)
 
-
   const spectrumChartRef = useRef(null)
   const fallsChartRef = useRef(null)
   const progressBarRef = useRef(null)
 
   const interval = useRef(null)
 
+  // 初始化 获取数据
   const init = () => {
     useEffect(() => {
       fetch('data/data.json')
@@ -33,12 +33,14 @@ const Home = () => {
     }, [])
   }
 
+  // 播放
   const handlerPlay = () => {
     if (spectrumChartRef.current && fallsChartRef.current) {
       createInterval(chartData)
     }
   }
 
+  // 暂停
   const handlerPause = () => {
     clearInterval(interval.current)
   }
@@ -48,9 +50,12 @@ const Home = () => {
     let i = 0
     interval.current = setInterval(() => {
       if (i === data.length - 1) return clearInterval(interval.current)
+      // 计算当前播放的进度
       const { SampleIndex, TotalSamplesCount } = data[i]
       const percentage = (SampleIndex / TotalSamplesCount) * 100
+      // 设置进度 触发进度条指示器位移
       setPercentage(percentage)
+      // 更新频谱图和瀑布图
       spectrumChartRef.current.updateChart(data[i])
       fallsChartRef.current.updateChart(data[i])
       i++
@@ -76,7 +81,12 @@ const Home = () => {
           >
             开始播放
           </Button>
-          <Button ghost size="small" onClick={handlerPause} icon={<PauseCircleOutlined />}>
+          <Button
+            ghost
+            size="small"
+            onClick={handlerPause}
+            icon={<PauseCircleOutlined />}
+          >
             暂停播放
           </Button>
         </div>

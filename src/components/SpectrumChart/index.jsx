@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef, useImperativeHandle } from 'react'
 import { ceil, floor } from 'lodash'
 import Highcharts from 'highcharts'
 
+// 当同一个页面存在多个频谱图时 使用 Map 数据结构存储 HighCharts 实例对象
 let instanceOfMap = new Map()
 
 const SpectrumChart = React.forwardRef(
   (
     {
+      // 将一些配置项暴露给父组件，方便定制
       zoomType = 'x',
       yAxisVisible = true,
       xAxisVisible = true,
@@ -24,16 +26,19 @@ const SpectrumChart = React.forwardRef(
     },
     ref
   ) => {
-    const spectrumRef = useRef(null)
+    const spectrumRef = useRef(null) // 图表 DOM 引用
+
     const [state, setState] = useState({
       xAxisMin: 0,
       xAxisMax: 0,
       isFirstRender: true,
     })
+
     const [keySymbol, setKeySymbol] = useState(null)
 
     useEffect(() => {
-      console.log('init', keySymbol)
+      // 每一个图表初始化之前先创建一个 symbol 作为 key
+      // 然后将这个组件的图表的 HighCharts 实例对象 存放在 instanceOfMap 中
       setKeySymbol(Symbol())
     }, [])
 
@@ -41,11 +46,11 @@ const SpectrumChart = React.forwardRef(
       keySymbol && createChart()
     }, [keySymbol])
 
-    // 获取 highcharts 组件的实例
+    // 获取 highcharts 组件的实例对象
     const getChartInstance = () => {
       return instanceOfMap.get(keySymbol)
     }
-    // 设置 highcharts 组件的实例
+    // 设置 highcharts 组件的实例对象
     const setChartInstance = value => {
       return instanceOfMap.set(keySymbol, value)
     }
@@ -137,42 +142,18 @@ const SpectrumChart = React.forwardRef(
               enabled: false,
             },
           },
-          {
-            // 最大值的线
-            lineWidth: 1,
-            enableMouseTracking: false,
-            linecap: null,
-            animation: false,
-            turboThreshold: 3000,
-            marker: {
-              enabled: false,
-            },
-            lineColor: 'rgb(145, 18, 18)',
-          },
-          {
-            // 最小值的线
-            lineWidth: 1,
-            enableMouseTracking: false,
-            linecap: null,
-            animation: false,
-            turboThreshold: 3000,
-            marker: {
-              enabled: false,
-            },
-            lineColor: '#fff',
-          },
         ],
       }
       const spectrumChart = new Highcharts.Chart(spectrumRef.current, config)
       setChartInstance(spectrumChart)
     }
-    // 使用定时器 渲染每一帧图像
+    // 更新渲染图表 暴露给父组件调用 传入图表的数据
     const updateChart = res => {
-      let totalData = res.data
-      // 根据起始值与结束值计算每一个点的坐标
       if (!res.data) return
       const dataLength = res.data.length
+      // 数据聚合
       const resultData = res.data.map((currentValue, index) => {
+        // 根据起始值与结束值计算每一个点的坐标
         const x = ceil(
           res.startFrequency +
             ((res.stopFrequency - res.startFrequency) / dataLength) * index
@@ -183,8 +164,10 @@ const SpectrumChart = React.forwardRef(
         }
         return [x, y]
       })
+      // 获取当前 chart 的实例对象
       const spectrumChart = getChartInstance()
       if (state.isFirstRender) {
+        // 如果是第一次渲染 则设置横轴频率范围
         spectrumChart.update({
           xAxis: {
             min: res.startFrequency,
@@ -197,18 +180,14 @@ const SpectrumChart = React.forwardRef(
           xAxisMax: res.stopFrequency,
           isFirstRender: false,
         }))
+        // 重新绘制以达到更新效果
         resetChart()
       }
-      // 插入数据重新渲染
-      if (!spectrumChart.series) return
+      // 将当前一帧的数据绘制在页面上
       spectrumChart.series[0].setData(resultData, true, false)
     }
 
-    useImperativeHandle(ref, () => ({
-      updateChart: updateChart,
-    }))
-
-    // 重新绘制
+    // 重新绘制 chart
     const resetChart = () => {
       const spectrumChart = getChartInstance()
       if (spectrumChart) {
@@ -216,6 +195,10 @@ const SpectrumChart = React.forwardRef(
         createChart()
       }
     }
+
+    useImperativeHandle(ref, () => ({
+      updateChart: updateChart,
+    }))
 
     return <div style={{ height: height }} ref={spectrumRef}></div>
   }

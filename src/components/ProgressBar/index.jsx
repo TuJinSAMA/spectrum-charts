@@ -204,13 +204,6 @@ const ProgressBar = React.forwardRef(
       setLineBox(lineBox)
     }
 
-    const selectionBox = null
-    const drawSelectionBox = () => {
-      selectionBox.value = document.createElement('div')
-      selectionBox.value.className = 'selection_box'
-      selectionBox.value.style.height = boxHeight.value + 'px'
-      progressBox.current.appendChild(selectionBox.value)
-    }
 
     const handlerMouseDown = e => {
       if (e.target.className === 'line_box') isMove = true

@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef, useImperativeHandle } from 'react'
 import { round } from 'lodash'
 import style from './index.module.styl'
+
+// 引入颜色图依赖包
 const ColorMap = require('colormap')
 
 const FallsChart = React.forwardRef(
   (
     {
+      // 暴露一些定制化的参数给父组件
       title = '瀑布图(dBuv)',
       height = 50,
       minDb = -125,
@@ -17,8 +20,9 @@ const FallsChart = React.forwardRef(
     },
     ref
   ) => {
+    // 图表容器 DOM 的引用
     const heatmap = useRef(null)
-
+    // 初始化 state
     const [state, setState] = useState({
       canvasCtx: null, 
       fallsCanvas: null,
@@ -29,6 +33,7 @@ const FallsChart = React.forwardRef(
     })
 
     useEffect(() => {
+      // 初始化组件
       initComponent()
     }, [])
 
@@ -112,7 +117,7 @@ const FallsChart = React.forwardRef(
       // 最后再绘制一遍图例 (不然会被覆盖)
       // drawLegend(state.canvasCtx, state.legendCanvasCtx, state.colormap)
     }
-    // 绘制瀑布图,隐藏状态
+    // 在用于绘制的画布上绘制图像
     const addWaterfallRow = data => {
       // 先将已生成的图像向下移动一个像素
       state.fallsCanvasCtx.drawImage(
@@ -172,9 +177,10 @@ const FallsChart = React.forwardRef(
         canvasHeight
       )
     }
-    // 绘制图例
+    // 绘制颜色图图例
     const drawLegend = (canvasCtx, legendCanvasCtx, colormap) => {
       const imageData = legendCanvasCtx.createImageData(1, colormap.length)
+      // 遍历颜色图集合
       for (let i = 0; i < colormap.length; i++) {
         const color = colormap[i]
         imageData.data[imageData.data.length - i * 4 + 0] = color[0]
