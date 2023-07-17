@@ -21,4 +21,4 @@ app.get('/', (req, res) => {
   res.send(template);
 })
 
-app.listen(3000, () => console.log('server is running ...'))
+app.listen(3000, () => console.log('server is running at http://localhost:3000 ...'))
